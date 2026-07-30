@@ -1,1 +1,4 @@
 git+https://github.com/acms2345/GeradorABNTPy.git
+fastapi
+uvicorn
+ipaddress
