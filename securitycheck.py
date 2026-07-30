@@ -3,6 +3,7 @@ import ipaddress
 import socket
 import requests
 
+# Algumas classes de erros envolvendo os sites:
 class urlInseguraErro(Exception):
     pass
 
@@ -47,6 +48,7 @@ LIMITE_CONTENT_LENGTH = 3000000
 
 def buscarUrlSegura(url: str):
     """Essa função coleta a url, faz todas as verificações de segurança
+    (usando `verificarUrl()` e algumas verificações próprias)
     e devolve o exato valor para ser usado pelo Beautiful Soup."""
 
     try: 
@@ -75,12 +77,16 @@ def buscarUrlSegura(url: str):
 
             proximaUrl = doc.headers.get("Location")
 
-            try: verificarURL(url)
+            try: verificarURL(proximaUrl)
             except urlInseguraErro as erro:
                 raise erro
             
             doc = requests.get(proximaUrl, timeout=15, allow_redirects=False, headers=headers)
 
+    #Em casos de erro de acesso (404, 502, etc.)
+    else:
+        raise redeSiteErro(f"Não foi possível acessar o site - retornou status {doc.status_code}")
+    
     contenttype = doc.headers.get('Content-Type', "")
 
     if not (contenttype.startswith("text/html")):

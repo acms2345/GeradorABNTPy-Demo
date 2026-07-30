@@ -46,7 +46,7 @@ def processamentoLink(link: linkCitacao):
     try:
 
         conteudo = securitycheck.buscarUrlSegura(link.link)
-        soup = BeautifulSoup(conteudo.content, 'html.parser')
+        soup = BeautifulSoup(conteudo, 'html.parser')
         citacaoEmTexto = citacaoInLine(soup, link.link, pasta)
         refBibliografica = citacaoRef(pasta, link.link)
 
@@ -54,26 +54,18 @@ def processamentoLink(link: linkCitacao):
 
     #Exceções de segurança:
     except securitycheck.urlInseguraErro as erro:
-        raise HTTPException(400, detail=erro)
+        raise HTTPException(400, detail=str(erro))
     except securitycheck.tipoConteudoErro as erro:
-        raise HTTPException(415, detail=erro)
+        raise HTTPException(415, detail=str(erro))
+    except securitycheck.redeSiteErro as erro:
+        raise HTTPException(502, detail=str(erro))
+    except securitycheck.conteudoGrandeDemaisErro as erro:
+        raise HTTPException(413, detail=str(erro))
 
     #Exceções de erro ao criar a citação:
     except (TypeError, AttributeError, KeyError) as erro:
         raise HTTPException(status_code=422, detail=f"Não foi possível formar a citação por essa página: {erro}")
 
-    #Outras exceções:
-    except requests.exceptions.MissingSchema:
-        raise HTTPException(
-            status_code=502,
-            detail="O usuário não inseriu 'http:// ou https://'"
-        )
-
-    except requests.exceptions.RequestException:
-        raise HTTPException(
-            status_code=502,
-            detail="Não foi possível acessar o site."
-        )
     finally:
         limparPasta(pasta)
 
