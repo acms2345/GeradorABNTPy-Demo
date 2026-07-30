@@ -43,7 +43,7 @@ def verificarURL(url: str):
 
 
 MAXIMO_REDIRECTS = 5
-LIMITE_CONTENT_LENGTH = 36000
+LIMITE_CONTENT_LENGTH = 3000000
 
 def buscarUrlSegura(url: str):
     """Essa função coleta a url, faz todas as verificações de segurança
