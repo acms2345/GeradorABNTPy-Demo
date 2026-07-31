@@ -3,23 +3,27 @@ from geradorabnt.core import citacaoInLine, citacaoRef, limparPasta
 import securitycheck
 
 from fastapi import FastAPI, HTTPException
-
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Request
 
 from bs4 import BeautifulSoup
-
-import requests
 
 from pydantic import BaseModel
 
 from uuid import uuid4
 
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceede
 
 
 class linkCitacao(BaseModel):
     link: str
 
 app = FastAPI()
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceede, _rate_limit_exceeded_handler)
 
 #Domínios permitidos
 origins = [
@@ -36,9 +40,14 @@ app.add_middleware(
 
 )
 
+@app.get('/')
+def healthforRender():
+    return {"status": "ok"}
+
 
 @app.post("/citar-link")
-def processamentoLink(link: linkCitacao):
+@limiter.limit("10/minute")
+def processamentoLink(link: linkCitacao, request: Request):
     headers = {
         "User-Agent": "Mozilla/5.0"
     } 

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    runtime: python
+    name: GeradorABNTPy-Demo
+    repo: https://github.com/acms2345/GeradorABNTPy-Demo.git
+    branch: master
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    region: virginia
+    healthCheckPath: /
