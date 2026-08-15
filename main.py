@@ -1,4 +1,4 @@
-from geradorabnt.core import citacaoInLine, citacaoRef, limparPasta
+from geradorabnt import citacaoInLine, citacaoRef, limparPasta
 
 import securitycheck
 
@@ -15,6 +15,8 @@ from uuid import uuid4
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+
+from citeproc import formatter
 
 
 class linkCitacao(BaseModel):
@@ -56,7 +58,7 @@ def processamentoLink(link: linkCitacao, request: Request):
 
         conteudo = securitycheck.buscarUrlSegura(link.link)
         soup = BeautifulSoup(conteudo, 'html.parser')
-        citacaoEmTexto = citacaoInLine(soup, link.link, pasta)
+        citacaoEmTexto = citacaoInLine(soup, link.link, pasta, formatador=formatter.html)
         refBibliografica = citacaoRef(pasta, link.link)
 
         return {"citacaoInLine": citacaoEmTexto, "citacaoRef" : refBibliografica}
@@ -72,7 +74,7 @@ def processamentoLink(link: linkCitacao, request: Request):
         raise HTTPException(413, detail=str(erro))
 
     #Exceções de erro ao criar a citação:
-    except (TypeError, AttributeError, KeyError) as erro:
+    except (TypeError, AttributeError, KeyError, ValueError) as erro:
         raise HTTPException(status_code=422, detail=f"Não foi possível formar a citação por essa página: {erro}")
 
     finally:

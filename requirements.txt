@@ -1,4 +1,4 @@
-git+https://github.com/acms2345/GeradorABNTPy.git@v0.1.0
+git+https://github.com/acms2345/GeradorABNTPy.git@v0.2.0
 fastapi
 uvicorn
 slowapi
