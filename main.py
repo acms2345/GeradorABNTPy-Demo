@@ -59,7 +59,7 @@ def processamentoLink(link: linkCitacao, request: Request):
         conteudo = securitycheck.buscarUrlSegura(link.link)
         soup = BeautifulSoup(conteudo, 'html.parser')
         citacaoEmTexto = citacaoInLine(soup, link.link, pasta, formatador=formatter.html)
-        refBibliografica = citacaoRef(pasta, link.link)
+        refBibliografica = citacaoRef(pasta=pasta, url=link.link)
 
         return {"citacaoInLine": citacaoEmTexto, "citacaoRef" : refBibliografica}
 
